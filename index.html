@@ -41,37 +41,57 @@
     </div>
 
     <script>
+        // ... (your existing JavaScript code) ...
 
+        // Function to create and share a vCard
+        function createAndShareVCard(contact) {
+            var vcard = "BEGIN:VCARD\nVERSION:4.0\nFN:" + contact.name 
+                + "\nTITLE:" + contact.positionTitle
+                + "\nTEL;TYPE=work,voice:" + contact.phone 
+                + "\nTEL;TYPE=work,video:" + contact.phone 
+                + "\nEMAIL:" + contact.email
+                + "\nORG:" + contact.company
+                + "\nURL:" + contact.website
+                + "\nADR;TYPE=WORK,PREF:;;" + contact.address
+                + "\nEND:VCARD";
+
+            var blob = new Blob([vcard], { type: "text/vcard" });
+            var fileName = contact.name + ".vcf";
+
+            if (navigator.share) {
+                // Share using the navigator.share API
+                navigator.share({
+                    title: 'New Contacts',
+                    text: 'Save contacts',
+                    files: [new File([blob], fileName, { type: 'text/vcard' })],
+                }).then(() => { }).catch((error) => {
+                    console.error('Error sharing:', error);
+                });
+            } else {
+                // Use a download link for platforms that don't support navigator.share
+                const newLink = document.createElement('a');
+                newLink.download = fileName;
+                newLink.textContent = contact.name;
+                newLink.href = URL.createObjectURL(blob);
+                newLink.click();
+            }
+        }
+
+        // Attach the click event listener to the "Save Contact" button
         var saveBtn = document.getElementById("save-btn");
-        saveBtn.addEventListener("click",function(){
+        saveBtn.addEventListener("click", function () {
             var contact = {
                 name: "Kabelo Malepane A2Z Tech Solutions",
                 phone: "072 970 8891",
-                positionTitle : "Head Of PR & Marketing" ,
+                positionTitle: "Head Of PR & Marketing",
                 email: "kabelo@a2ztech.co.za",
-                company : "A2Z Tech Solutions",
-                website : "https://a2ztech.co.za/",
-                address : "Syringa Building, The Avenues Office Park, \n 45 Homestead Road Rivonia, \n Sandton, 2196"
+                company: "A2Z Tech Solutions",
+                website: "https://a2ztech.co.za/",
+                address: "Syringa Building, The Avenues Office Park, \n 45 Homestead Road Rivonia, \n Sandton, 2196"
             };
-            // create a vcard file
-            var vcard = "BEGIN:VCARD\nVERSION:4.0\nFN:" + contact.name 
-            + "\nTITLE:" + contact.positionTitle
-            + "\nTEL;TYPE=work,voice:" + contact.phone 
-            + "\nTEL;TYPE=work,video:" + contact.phone 
-            + "\nEMAIL:" + contact.email
-            + "\nORG:" + contact.company
-            + "\nURL:" + contact.website
-            + "\nADR;TYPE=WORK,PREF:;;"   + contact.address
-            + "\nEND:VCARD";
-            var blob = new Blob([vcard], { type: "text/vcard" });
-            var url = URL.createObjectURL(blob);
-            
-            const newLink = document.createElement('a');
-            newLink.download = contact.name + ".vcf";
-            newLink.textContent = contact.name;
-            newLink.href = url;
-            
-            newLink.click();
+
+            // Call the function to create and share the vCard
+            createAndShareVCard(contact);
         });
     </script>
 
